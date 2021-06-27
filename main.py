@@ -1,5 +1,9 @@
 from PIL import Image, ImageDraw, ImageFont
 import re
+import os
+
+if "output" not in os.listdir():
+	os.mkdir(output)
 
 def get_concat_h(im1, im2):
     dst = Image.new('RGB', (im1.width + im2.width, max(im1.height,im2.height)), color=(237,237,237))
