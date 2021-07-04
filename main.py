@@ -1,9 +1,33 @@
-from imageProcessing import createBubble, loadAvatar
+from imageProcessing import createBubble, loadAvatar, get_concat_v, drawTitle
 import os
 from tkinter import *
 from tkinter import filedialog
 from PIL import Image, ImageTk
 
+def updatePreview():
+	imagePreview = currentCanvas.resize((round(w/3), round(h/3)))
+	imagePreview = ImageTk.PhotoImage(imagePreview)
+	imagePreviewWidget.configure(image=imagePreview)
+	imagePreviewWidget.image = imagePreview
+	imagePreviewWidget.grid(row=1, column=0)
+
+def popupMessage(title, message, windowToClose=None):
+    popupWindow = Toplevel()
+    popupWindow.title(title)
+    if not windowToClose:
+        close = popupWindow.destroy
+    elif windowToClose == 'all':
+        close = popupWindow.quit
+    else:
+        def close():
+            popupWindow.destroy()
+            windowToClose.destroy()
+    msg = Label(popupWindow, text=message, padx=10, pady=10)
+    ok = Button(popupWindow, text="Ok", padx=10,
+                pady=10, command=close)
+    msg.pack()
+    ok.pack()
+	
 def editEntry():
 	pass
 
@@ -12,8 +36,36 @@ def addEntry():
 		side = var.get()
 		text = e2.get("1.0", END)
 		avyName = e1.get()
+
+		#check for errors
+		errors = []
+		if side not in ("left", "right"):
+			errors.append("Please select left or right.")
+		if not avyName:
+			errors.append("Please select an avatar.")
+		if errors:
+			popupMessage("Error", "\n".join(e for e in errors))
+			return
+
 		avatar = loadAvatar(f"files\\avatars\\{avyName}")
-		createBubble(avatar, text, side)
+		bubble = createBubble(avatar, text, side)
+		addWindow.destroy()
+		entries.append(bubble)
+
+		#update preview img
+		img = entries[0]
+		if len(entries) > 1:
+			for i in range(1, len(entries)):
+				img = get_concat_v(img, entries[i])
+		if img.size[1] <= maxChatHeight:
+			currentCanvas.paste(img, (0,113))
+		else:
+			popupMessage("Error", "Chat content too long for one screenshot.")
+			return
+
+		lb.insert(END, text)
+
+		updatePreview()
 
 	def selectAvatar(x):
 		e1.config(state=NORMAL)
@@ -62,10 +114,16 @@ def deleteEntry():
 	pass
 
 def saveScreenshot():
-	pass
+	currentCanvas.save("output\\screenshot.png")
 
+def setTitle(currentCanvas):
+	title = titleEntry.get()
+	currentCanvas = drawTitle(currentCanvas, title)
+	updatePreview()
+	
 
-entries = {}
+maxChatHeight = 1684
+entries = []
 
 if "output" not in os.listdir():
 	os.mkdir(output)
@@ -73,14 +131,17 @@ if "output" not in os.listdir():
 root = Tk()
 root.title("WeChat Screenshot Generator")
 
-imagePreview = Image.open("files\\blankScreenshot.png")
-w, h = imagePreview.size
-imagePreview = imagePreview.resize((round(w/3), round(h/3)))
+currentCanvas = Image.open("files\\blankScreenshot.png")
+w, h = currentCanvas.size
+imagePreview = currentCanvas.resize((round(w/3), round(h/3)))
 imagePreview = ImageTk.PhotoImage(imagePreview)
 imagePreviewWidget = Label(root, image=imagePreview)
 
 previewText = Label(root, text="Preview:")
 saveButton = Button(root, text="Save", padx=10, pady=10, command=saveScreenshot)
+setTitleLabel = Label(root, text="Set title:", padx=10, pady=10)
+setTitleButton = Button(root, text="Set Title", padx=10, pady=10, command=lambda: setTitle(currentCanvas))
+titleEntry = Entry(root, width=30)
 lb = Listbox(root, height=35, width=40)
 addButton = Button(root, text="Add", padx=10, pady=10, command=addEntry)
 deleteButton = Button(root, text="Delete", padx=10, pady=10, command=deleteEntry)
@@ -88,6 +149,9 @@ editButton = Button(root, text="Edit", padx=10, pady=10, command=editEntry)
 
 imagePreviewWidget.grid(row=1, column=0)
 previewText.grid(row=0,column=0)
+setTitleLabel.grid(row=0, column=1)
+titleEntry.grid(row=0,column=2)
+setTitleButton.grid(row=0, column=3)
 lb.grid(row=1,column=1, columnspan=3)
 saveButton.grid(row=2,column=0)
 addButton.grid(row=2, column=1)
