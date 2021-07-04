@@ -260,7 +260,6 @@ def createBubble(avatar, text, side):
 		userCanvas.paste(speechBubble, (w-bubbleWidth-2*arrowWidth-86, topMargin))
 
 	userCanvas.save('output\\usercanvas.png')
-	print("Screenshot created under output\\usercanvas.png.")
 	return userCanvas
 
 def drawTitle(canvas, title):

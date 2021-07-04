@@ -115,6 +115,7 @@ def deleteEntry():
 
 def saveScreenshot():
 	currentCanvas.save("output\\screenshot.png")
+	popupMessage("Successful", "Saved screenshot under output\\screenshot.png")
 
 def setTitle(currentCanvas):
 	title = titleEntry.get()
@@ -139,8 +140,8 @@ imagePreviewWidget = Label(root, image=imagePreview)
 
 previewText = Label(root, text="Preview:")
 saveButton = Button(root, text="Save", padx=10, pady=10, command=saveScreenshot)
-setTitleLabel = Label(root, text="Set title:", padx=10, pady=10)
-setTitleButton = Button(root, text="Set Title", padx=10, pady=10, command=lambda: setTitle(currentCanvas))
+setTitleLabel = Label(root, text="Chat Title:", padx=10, pady=10)
+setTitleButton = Button(root, text="Set", padx=10, command=lambda: setTitle(currentCanvas))
 titleEntry = Entry(root, width=20)
 lb = Listbox(root, height=35, width=40)
 addButton = Button(root, text="Add", padx=10, pady=10, command=addEntry)
