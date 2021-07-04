@@ -10,7 +10,7 @@ def editEntry():
 def addEntry():
 	def confirm():
 		side = var.get()
-		text = e2.get()
+		text = e2.get("1.0", END)
 		avyName = e1.get()
 		avatar = loadAvatar(f"files\\avatars\\{avyName}")
 		createBubble(avatar, text, side)
@@ -37,13 +37,13 @@ def addEntry():
 			r += 1
 
 	l1 = Label(addWindow, text="Avatar Selected:", padx=10)
-	e1 = Entry(addWindow, width=20)
+	e1 = Entry(addWindow, width=30)
 	l1.grid(row=0, column=4)
 	e1.grid(row=0, column=5)
 	e1.config(state=DISABLED)
 
 	l2 = Label(addWindow, text="Text:", padx=10)
-	e2 = Entry(addWindow, width=20)
+	e2 = Text(addWindow, height=10, width=30)
 	l2.grid(row=1, column=4)
 	e2.grid(row=1, column=5)
 
@@ -96,10 +96,3 @@ editButton.grid(row=2,column=3)
 
 
 root.mainloop()
-
-# # createBubble(loadAvatar("files\\austinavy.jpg"), "duskblades are so fucking cute")
-# avatar = loadAvatar(input("Path to avatar:\n"))
-# text = input("Input your text:\n")
-# side = input("Position of bubble left or right?\n")
-
-# createBubble(avatar, text, side)
