@@ -158,7 +158,7 @@ def drawText(imgDrawObj, xcoord, ycoord, text, fill, title=False):
 					ft = enTextFont
 				xcoord += tw
 
-def createBubble(avatar, text, side="left"):
+def createBubble(avatar, text, side):
 	def breakWord(word):
 		lst = []
 		while word:

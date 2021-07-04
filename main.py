@@ -9,7 +9,11 @@ def editEntry():
 
 def addEntry():
 	def confirm():
-		print(var.get())
+		side = var.get()
+		text = e2.get()
+		avyName = e1.get()
+		avatar = loadAvatar(f"files\\avatars\\{avyName}")
+		createBubble(avatar, text, side)
 
 	def selectAvatar(x):
 		e1.config(state=NORMAL)
@@ -28,7 +32,7 @@ def addEntry():
 		b.image = avyImage
 		b.grid(row=r, column=c)
 		c += 1
-		if c == 3:
+		if c == 4:
 			c = 0
 			r += 1
 
