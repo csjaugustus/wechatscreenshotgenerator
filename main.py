@@ -77,9 +77,14 @@ def addEntry():
 		e1.insert(0, x)
 		e1.config(state=DISABLED)
 
+	if not os.listdir("files\\avatars"):
+		popupMessage("Error", "No avatar image found. Please add at least one avatar image in files\\avatars.")
+		return
+
 	addWindow = Toplevel()
 	addWindow.title("Add Entry")
 	r, c = 0, 0
+
 	for avyName in os.listdir("files\\avatars"):
 		avyImage = Image.open(f"files\\avatars\\{avyName}")
 		avyImage = avyImage.resize((50,50))
