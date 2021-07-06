@@ -64,6 +64,7 @@ def addEntry():
 			currentCanvas.paste(img, (0,113))
 		else:
 			popupMessage("Error", "Chat content too long for one screenshot.")
+			entries.remove(bubble)
 			return
 
 		lb.insert(END, text)
@@ -139,9 +140,6 @@ def deleteEntry():
 	        		img = get_concat_v(img, entries[i])
 	        if img.size[1] <= maxChatHeight:
 	        	currentCanvas.paste(img,(0,113))
-	        else:
-	        	popupMessage("Error", "Chat content is too long for one screenshot.")
-        		return
 
         updatePreview()
 
@@ -167,6 +165,9 @@ def saveIndividual():
 		toSave.save(d)
 		popupMessage("Successful", f"Saved under {d}.")
 
+def openDir():
+	os.startfile(os.getcwd())
+
 maxChatHeight = 1684
 entries = []
 
@@ -184,8 +185,11 @@ w, h = currentCanvas.size
 imagePreview = currentCanvas.resize((round(w/3), round(h/3)))
 imagePreview = ImageTk.PhotoImage(imagePreview)
 imagePreviewWidget = Label(root, image=imagePreview)
+folderIcon = Image.open("files\\foldericon.png")
+folderIcon = folderIcon.resize((25,25))
+folderIcon = ImageTk.PhotoImage(folderIcon)
 
-previewText = Label(root, text="Preview:")
+previewText = Label(root, text="PREVIEW")
 saveButton = Button(root, text="Save Screenshot", padx=10, pady=10, command=saveScreenshot)
 setTitleLabel = Label(root, text="Chat Title:", padx=10, pady=10)
 setTitleButton = Button(root, text="Set", padx=10, command=lambda: setTitle(currentCanvas))
@@ -194,17 +198,20 @@ lb = Listbox(root, height=35, width=50)
 addButton = Button(root, text="Add", padx=10, pady=10, command=addEntry)
 deleteButton = Button(root, text="Delete", padx=10, pady=10, command=deleteEntry)
 saveIndividualButton = Button(root, text="Save Selected Bubble", padx=10, pady=10, command=saveIndividual)
+openDirectoryButton = Button(root, image=folderIcon, command=openDir)
+openDirectoryButton.image = folderIcon
 
 imagePreviewWidget.grid(row=1, column=0)
 previewText.grid(row=0,column=0)
 setTitleLabel.grid(row=0, column=1)
 titleEntry.grid(row=0,column=2)
 setTitleButton.grid(row=0, column=3)
-lb.grid(row=1,column=1, columnspan=3)
+lb.grid(row=1,column=1, columnspan=4)
 saveButton.grid(row=2,column=0)
 addButton.grid(row=2, column=1)
 deleteButton.grid(row=2,column=2)
-saveIndividualButton.grid(row=2,column=3)
+saveIndividualButton.grid(row=2,column=3,columnspan=2)
+openDirectoryButton.grid(row=0,column=4)
 
 
 root.mainloop()
