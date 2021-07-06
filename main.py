@@ -171,6 +171,9 @@ if "output" not in os.listdir():
 
 root = Tk()
 root.title("WeChat Screenshot Generator")
+icon = Image.open("files\\wechat-logo.png")
+icon = ImageTk.PhotoImage(icon)
+root.iconphoto(True, icon)
 
 currentCanvas = Image.open("files\\blankScreenshot.png")
 w, h = currentCanvas.size
