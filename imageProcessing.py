@@ -18,7 +18,6 @@ def get_concat_v(im1, im2):
 def sortText(text):
 	seq = []
 
-	pattern = re.compile("[\\dA-Za-z\\s.,\"$%!?:()-\u2014;\u00e9]+")
 	matches = pattern.findall(text)
 
 	current_lang = ""
@@ -47,7 +46,6 @@ def getTextSize(text, title=False):
 	if not text:
 		return (0, 0)
 
-	pattern = re.compile("[\\dA-Za-z\\s.,\"$%!?:()-\u2014;\u00e9]+")
 	w, h = 0, 0
 	seq = sortText(text)
 
@@ -108,7 +106,6 @@ def getTextSize(text, title=False):
 
 def drawText(imgDrawObj, xcoord, ycoord, text, fill, title=False):
 	draw = imgDrawObj
-	pattern = re.compile("[\\dA-Za-z\\s.,\"$%!?:()-\u2014;\u00e9]+")
 	seq = sortText(text)
 
 	if pattern.findall(seq[0]): #first element is not chinese
@@ -174,7 +171,7 @@ def createBubble(avatar, text, side):
 			word = word[indx:]
 		return lst
 
-	#split text into lines
+	#break long words
 	lines = []
 	temp = text.split()
 	splitText = []
@@ -184,6 +181,7 @@ def createBubble(avatar, text, side):
 		else:
 			splitText += breakWord(word)
 
+	#split text into lines
 	indx = 0
 	while splitText:
 		for i in range(1,len(splitText)+1):
@@ -191,6 +189,13 @@ def createBubble(avatar, text, side):
 			if getTextSize(currentLine)[0] <= maxTextWidth:
 				indx = i
 			else:
+				if not pattern.findall(splitText[i-1]): #break chinese character clusters
+					temp = breakWord(currentLine)
+					if len(temp) > 1:
+						last = temp[1]
+						first = splitText[i-1][:-len(last)]
+						splitText[i-2] = splitText[i-2] + " " + first
+						splitText[i-1] = last
 				break
 		line = " ".join(splitText[:indx])
 		splitText = splitText[indx:]
@@ -282,6 +287,7 @@ cnTitleFont = ImageFont.truetype('files\\SourceHanSans-Medium.otf', 38)
 cnTextFont = ImageFont.truetype('files\\SourceHanSans-Normal.otf', 38)
 
 #constants
+pattern = re.compile("[\\dA-Za-z\\s.,\"$%!?:()-\u2014;\u00e9]+")
 w, h = 864, 1920
 topMargin = 14
 sideMargin = 25
