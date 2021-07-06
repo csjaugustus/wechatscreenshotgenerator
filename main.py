@@ -60,12 +60,9 @@ def addEntry():
 		if len(entries) > 1:
 			for i in range(1, len(entries)):
 				img = get_concat_v(img, entries[i])
-		if img.size[1] <= maxChatHeight:
-			currentCanvas.paste(img, (0,113))
-		else:
-			popupMessage("Error", "Chat content too long for one screenshot.")
-			entries.remove(bubble)
-			return
+		if img.size[1] > maxChatHeight:
+			img = img.crop((0, img.size[1]-maxChatHeight, width, img.size[1]))
+		currentCanvas.paste(img, (0,113))
 
 		lb.insert(END, text)
 
@@ -130,7 +127,7 @@ def deleteEntry():
         lb.delete(selectedIndex)
 
         #update current canvas
-        blank = Image.new('RGB', (864,maxChatHeight), color=(237,237,237))
+        blank = Image.new('RGB', (width,maxChatHeight), color=(237,237,237))
         currentCanvas.paste(blank, (0,113))
 
         if entries:
@@ -168,6 +165,26 @@ def saveIndividual():
 def openDir():
 	os.startfile(os.getcwd())
 
+def clear():
+	def clearScreen():
+		confirmation.destroy()
+		entries.clear()
+		lb.delete(0,'end')
+		blank = Image.new('RGB', (width,maxChatHeight), color=(237,237,237))
+		currentCanvas.paste(blank, (0,113))
+		updatePreview()
+
+	confirmation = Toplevel()
+	confirmation.title("Confirmation")
+	l = Label(confirmation, text="Are you sure you want to clear the screenshot?\nAll unsaved bubbles will be erased.")
+	b1 = Button(confirmation, text="Yes", command=clearScreen, padx=10)
+	b2 = Button(confirmation, text="No", command=confirmation.destroy, padx=10)
+	l.grid(row=0,column=0,columnspan=3)
+	b1.grid(row=1,column=0)
+	b2.grid(row=1,column=2)
+
+
+width = 864
 maxChatHeight = 1684
 entries = []
 
@@ -200,18 +217,20 @@ deleteButton = Button(root, text="Delete", padx=10, pady=10, command=deleteEntry
 saveIndividualButton = Button(root, text="Save Selected Bubble", padx=10, pady=10, command=saveIndividual)
 openDirectoryButton = Button(root, image=folderIcon, command=openDir)
 openDirectoryButton.image = folderIcon
+clearButton = Button(root, text="Clear", padx=10, pady=10, command=clear)
 
-imagePreviewWidget.grid(row=1, column=0)
-previewText.grid(row=0,column=0)
-setTitleLabel.grid(row=0, column=1)
-titleEntry.grid(row=0,column=2)
-setTitleButton.grid(row=0, column=3)
-lb.grid(row=1,column=1, columnspan=4)
-saveButton.grid(row=2,column=0)
-addButton.grid(row=2, column=1)
-deleteButton.grid(row=2,column=2)
-saveIndividualButton.grid(row=2,column=3,columnspan=2)
-openDirectoryButton.grid(row=0,column=4)
+imagePreviewWidget.grid(row=1, column=0, columnspan=2)
+previewText.grid(row=0,column=0, columnspan=2)
+setTitleLabel.grid(row=0, column=2)
+titleEntry.grid(row=0,column=3)
+setTitleButton.grid(row=0, column=4)
+lb.grid(row=1,column=2, columnspan=4)
+saveButton.grid(row=2,column=1)
+addButton.grid(row=2, column=2)
+deleteButton.grid(row=2,column=3)
+saveIndividualButton.grid(row=2,column=4,columnspan=2)
+openDirectoryButton.grid(row=0,column=5)
+clearButton.grid(row=2,column=0)
 
 
 root.mainloop()
