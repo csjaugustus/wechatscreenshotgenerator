@@ -17,21 +17,21 @@ def updatePreview():
 	imagePreviewWidget.grid(row=1, column=0)
 
 def popupMessage(title, message, windowToClose=None):
-    popupWindow = Toplevel()
-    popupWindow.title(title)
-    if not windowToClose:
-        close = popupWindow.destroy
-    elif windowToClose == 'all':
-        close = popupWindow.quit
-    else:
-        def close():
-            popupWindow.destroy()
-            windowToClose.destroy()
-    msg = Label(popupWindow, text=message, padx=10, pady=10)
-    ok = Button(popupWindow, text="Ok", padx=10,
-                pady=10, command=close)
-    msg.pack()
-    ok.pack()
+	popupWindow = Toplevel()
+	popupWindow.title(title)
+	if not windowToClose:
+		close = popupWindow.destroy
+	elif windowToClose == 'all':
+		close = popupWindow.quit
+	else:
+		def close():
+			popupWindow.destroy()
+			windowToClose.destroy()
+	msg = Label(popupWindow, text=message, padx=10, pady=10)
+	ok = Button(popupWindow, text="Ok", padx=10,
+				pady=10, command=close)
+	msg.pack()
+	ok.pack()
 	
 
 def addEntry():
@@ -65,6 +65,10 @@ def addEntry():
 		currentCanvas.paste(img, (0,113))
 
 		lb.insert(END, text)
+		clearButton.config(state=NORMAL)
+		deleteButton.config(state=NORMAL)
+		saveButton.config(state=NORMAL)
+		saveIndividualButton.config(state=NORMAL)
 
 		updatePreview()
 
@@ -117,28 +121,34 @@ def addEntry():
 
 
 def deleteEntry():
-    selectedIndex = lb.curselection()
-    if not selectedIndex:
-        popupMessage("Nothing selected",
-                     "Please select an entry to delete.")
-    else:
-        selectedIndex = selectedIndex[0]
-        del entries[selectedIndex]
-        lb.delete(selectedIndex)
+	selectedIndex = lb.curselection()
+	if not selectedIndex:
+		popupMessage("Nothing selected",
+					 "Please select an entry to delete.")
+	else:
+		selectedIndex = selectedIndex[0]
+		del entries[selectedIndex]
+		lb.delete(selectedIndex)
 
-        #update current canvas
-        blank = Image.new('RGB', (width,maxChatHeight), color=(237,237,237))
-        currentCanvas.paste(blank, (0,113))
+		if not lb.get(0):
+			clearButton.config(state=DISABLED)
+			deleteButton.config(state=DISABLED)
+			saveButton.config(state=DISABLED)
+			saveIndividualButton.config(state=DISABLED)
 
-        if entries:
-	        img = entries[0]
-	        if len(entries) > 1:
-	        	for i in range(1, len(entries)):
-	        		img = get_concat_v(img, entries[i])
-	        if img.size[1] <= maxChatHeight:
-	        	currentCanvas.paste(img,(0,113))
+		#update current canvas
+		blank = Image.new('RGB', (width,maxChatHeight), color=(237,237,237))
+		currentCanvas.paste(blank, (0,113))
 
-        updatePreview()
+		if entries:
+			img = entries[0]
+			if len(entries) > 1:
+				for i in range(1, len(entries)):
+					img = get_concat_v(img, entries[i])
+			if img.size[1] <= maxChatHeight:
+				currentCanvas.paste(img,(0,113))
+
+		updatePreview()
 
 def saveScreenshot():
 	d = f"output\\SS-{getTimestamp()}.png"
@@ -183,6 +193,10 @@ def clear():
 	b1.grid(row=1,column=0)
 	b2.grid(row=1,column=2)
 
+	clearButton.config(state=DISABLED)
+	deleteButton.config(state=DISABLED)
+	saveButton.config(state=DISABLED)
+	saveIndividualButton.config(state=DISABLED)
 
 width = 864
 maxChatHeight = 1684
@@ -218,6 +232,11 @@ saveIndividualButton = Button(root, text="Save Selected Bubble", padx=10, pady=1
 openDirectoryButton = Button(root, image=folderIcon, command=openDir)
 openDirectoryButton.image = folderIcon
 clearButton = Button(root, text="Clear", padx=10, pady=10, command=clear)
+
+clearButton.config(state=DISABLED)
+deleteButton.config(state=DISABLED)
+saveButton.config(state=DISABLED)
+saveIndividualButton.config(state=DISABLED)
 
 imagePreviewWidget.grid(row=1, column=0, columnspan=2)
 previewText.grid(row=0,column=0, columnspan=2)
