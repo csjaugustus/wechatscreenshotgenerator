@@ -1,7 +1,6 @@
 from imageProcessing import createBubble, loadAvatar, get_concat_v, drawTitle
 import os
 from tkinter import *
-from tkinter import filedialog
 from PIL import Image, ImageTk
 from datetime import datetime
 
