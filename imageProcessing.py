@@ -264,9 +264,10 @@ def createBubble(avatar, text, side):
 
 def drawTitle(canvas, title):
 	canvas.paste(titlebar, (0,0))
-	draw = ImageDraw.Draw(canvas)
-	tw, th = getTextSize(title, title=True)
-	drawText(draw, (w-tw)/2, (113-th)/2, title, "#1c1c1c", title=True)
+	if title:
+		draw = ImageDraw.Draw(canvas)
+		tw, th = getTextSize(title, title=True)
+		drawText(draw, (w-tw)/2, (113-th)/2, title, "#1c1c1c", title=True)
 	return canvas
 
 def loadAvatar(avypath):

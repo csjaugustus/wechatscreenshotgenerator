@@ -3,6 +3,12 @@ import os
 from tkinter import *
 from tkinter import filedialog
 from PIL import Image, ImageTk
+from datetime import datetime
+
+def getTimestamp():
+	now = datetime.now()
+	dt_string = now.strftime("%Y%d%m%H%M")
+	return dt_string
 
 def updatePreview():
 	imagePreview = currentCanvas.resize((round(w/3), round(h/3)))
@@ -28,8 +34,6 @@ def popupMessage(title, message, windowToClose=None):
     msg.pack()
     ok.pack()
 	
-def editEntry():
-	pass
 
 def addEntry():
 	def confirm():
@@ -52,7 +56,7 @@ def addEntry():
 		addWindow.destroy()
 		entries.append(bubble)
 
-		#update preview img
+		#update current canvas
 		img = entries[0]
 		if len(entries) > 1:
 			for i in range(1, len(entries)):
@@ -111,17 +115,53 @@ def addEntry():
 
 
 def deleteEntry():
-	pass
+    selectedIndex = lb.curselection()
+    if not selectedIndex:
+        popupMessage("Nothing selected",
+                     "Please select an entry to delete.")
+    else:
+        selectedIndex = selectedIndex[0]
+        del entries[selectedIndex]
+        lb.delete(selectedIndex)
+
+        #update current canvas
+        blank = Image.new('RGB', (864,maxChatHeight), color=(237,237,237))
+        currentCanvas.paste(blank, (0,113))
+
+        if entries:
+	        img = entries[0]
+	        if len(entries) > 1:
+	        	for i in range(1, len(entries)):
+	        		img = get_concat_v(img, entries[i])
+	        if img.size[1] <= maxChatHeight:
+	        	currentCanvas.paste(img,(0,113))
+	        else:
+	        	popupMessage("Error", "Chat content is too long for one screenshot.")
+        		return
+
+        updatePreview()
 
 def saveScreenshot():
-	currentCanvas.save("output\\screenshot.png")
-	popupMessage("Successful", "Saved screenshot under output\\screenshot.png")
+	d = f"output\\SS-{getTimestamp()}.png"
+	currentCanvas.save(d)
+	popupMessage("Successful", f"Saved under {d}.")
+	
 
 def setTitle(currentCanvas):
 	title = titleEntry.get()
 	currentCanvas = drawTitle(currentCanvas, title)
 	updatePreview()
-	
+
+def saveIndividual():
+	selectedIndex = lb.curselection()
+	if not selectedIndex:
+		popupMessage("Nothing selected", "Please select an entry to save.")
+	else:
+		selectedIndex = selectedIndex[0]
+		toSave = entries[selectedIndex]
+		d = f"output\\B{selectedIndex}-{getTimestamp()}.png"
+		toSave.save(d)
+		popupMessage("Successful", f"Saved under {d}.")
 
 maxChatHeight = 1684
 entries = []
@@ -139,14 +179,14 @@ imagePreview = ImageTk.PhotoImage(imagePreview)
 imagePreviewWidget = Label(root, image=imagePreview)
 
 previewText = Label(root, text="Preview:")
-saveButton = Button(root, text="Save", padx=10, pady=10, command=saveScreenshot)
+saveButton = Button(root, text="Save Screenshot", padx=10, pady=10, command=saveScreenshot)
 setTitleLabel = Label(root, text="Chat Title:", padx=10, pady=10)
 setTitleButton = Button(root, text="Set", padx=10, command=lambda: setTitle(currentCanvas))
 titleEntry = Entry(root, width=20)
-lb = Listbox(root, height=35, width=40)
+lb = Listbox(root, height=35, width=50)
 addButton = Button(root, text="Add", padx=10, pady=10, command=addEntry)
 deleteButton = Button(root, text="Delete", padx=10, pady=10, command=deleteEntry)
-editButton = Button(root, text="Edit", padx=10, pady=10, command=editEntry)
+saveIndividualButton = Button(root, text="Save Selected Bubble", padx=10, pady=10, command=saveIndividual)
 
 imagePreviewWidget.grid(row=1, column=0)
 previewText.grid(row=0,column=0)
@@ -157,7 +197,7 @@ lb.grid(row=1,column=1, columnspan=3)
 saveButton.grid(row=2,column=0)
 addButton.grid(row=2, column=1)
 deleteButton.grid(row=2,column=2)
-editButton.grid(row=2,column=3)
+saveIndividualButton.grid(row=2,column=3)
 
 
 root.mainloop()
