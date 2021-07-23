@@ -280,11 +280,19 @@ def loadAvatar(avypath):
 	avatar = avatar.resize((86,86))
 	return avatar
 
+def createTimeMarker(t):
+	tCanvas = Image.new('RGB', (w, timeMarkerHeight + 2 * topMargin), color=(237,237,237))
+	draw = ImageDraw.Draw(tCanvas)
+	xPos = (w - draw.textsize(t, font=timeFont)[0])/2
+	draw.text((xPos, topMargin), t, font=timeFont, fill='#878787')
+	return tCanvas
+
 #fonts
 enTitleFont = ImageFont.truetype('files\\Roboto-Medium-12.ttf', 36)
 enTextFont = ImageFont.truetype('files\\Roboto-Regular-14.ttf', 36)
 cnTitleFont = ImageFont.truetype('files\\SourceHanSans-Medium.otf', 38)
 cnTextFont = ImageFont.truetype('files\\SourceHanSans-Normal.otf', 38)
+timeFont = ImageFont.truetype('files\\Roboto-Regular-14.ttf', 25)
 
 #constants
 pattern = re.compile("[\\dA-Za-z\\s.,\"$%!?:()-\u2014;\u00e9]+")
@@ -295,6 +303,7 @@ fixedBubbleWidth = 595
 maxTextWidth = fixedBubbleWidth - 50
 bubbleTopMargin = 25
 bubbleLineMargin = 20
+timeMarkerHeight = 34
 
 #images
 titlebar = Image.open('files\\chattitle.png')

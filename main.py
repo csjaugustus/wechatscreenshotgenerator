@@ -1,5 +1,6 @@
-from imageProcessing import createBubble, loadAvatar, get_concat_v, drawTitle
+from imageProcessing import createBubble, loadAvatar, get_concat_v, drawTitle, createTimeMarker
 import os
+import re
 from tkinter import *
 from PIL import Image, ImageTk
 from datetime import datetime
@@ -36,24 +37,43 @@ def popupMessage(title, message, windowToClose=None):
 
 def addEntry():
 	def confirm():
-		side = var.get()
-		text = e2.get("1.0", END)
-		avyName = e1.get()
+		if cbVar.get():
+			timeRegex = re.compile('^\\d{2}:\\d{2}$')
+			text = e2.get("1.0", END)
+			errors = []
+			if not text:
+				errors.append("Please enter some text.")
+			elif not timeRegex.findall(text):
+				errors.append("Please enter a valid time in such format xx:xx.")
+			if errors:
+				popupMessage("Error", "\n".join(e for e in errors))
+				return
 
-		#check for errors
-		errors = []
-		if side not in ("left", "right"):
-			errors.append("Please select left or right.")
-		if not avyName:
-			errors.append("Please select an avatar.")
-		if errors:
-			popupMessage("Error", "\n".join(e for e in errors))
-			return
+			timeMarker = createTimeMarker(text)
+			addWindow.destroy()
+			entries.append(timeMarker)
 
-		avatar = loadAvatar(f"files\\avatars\\{avyName}")
-		bubble = createBubble(avatar, text, side)
-		addWindow.destroy()
-		entries.append(bubble)
+		else:
+			side = var.get()
+			text = e2.get("1.0", END)
+			avyName = e1.get()
+
+			#check for errors
+			errors = []
+			if side not in ("left", "right"):
+				errors.append("Please select left or right.")
+			if not avyName:
+				errors.append("Please select an avatar.")
+			if not text:
+				errors.append("Please enter some text.")
+			if errors:
+				popupMessage("Error", "\n".join(e for e in errors))
+				return
+
+			avatar = loadAvatar(f"files\\avatars\\{avyName}")
+			bubble = createBubble(avatar, text, side)
+			addWindow.destroy()
+			entries.append(bubble)
 
 		#update current canvas
 		img = entries[0]
@@ -86,12 +106,14 @@ def addEntry():
 	addWindow.title("Add Entry")
 	r, c = 0, 0
 
+	avyButtons = []
 	for avyName in os.listdir("files\\avatars"):
 		avyImage = Image.open(f"files\\avatars\\{avyName}")
 		avyImage = avyImage.resize((50,50))
 		avyImage = ImageTk.PhotoImage(avyImage)
 		b = Button(addWindow, image=avyImage, command=lambda x=avyName:selectAvatar(x))
 		b.image = avyImage
+		avyButtons.append(b)
 		b.grid(row=r, column=c)
 		c += 1
 		if c == 4:
@@ -101,23 +123,44 @@ def addEntry():
 	l1 = Label(addWindow, text="Avatar Selected:", padx=10)
 	e1 = Entry(addWindow, width=30)
 	l1.grid(row=0, column=4)
-	e1.grid(row=0, column=5)
+	e1.grid(row=0, column=5, columnspan=2)
 	e1.config(state=DISABLED)
 
 	l2 = Label(addWindow, text="Text:", padx=10)
 	e2 = Text(addWindow, height=10, width=30)
 	l2.grid(row=1, column=4)
-	e2.grid(row=1, column=5)
+	e2.grid(row=1, column=5,columnspan=2)
 
+	l3 = Label(addWindow, text="Side:", padx=10)
 	var = StringVar()
 	var.set(' ')
 	r1 = Radiobutton(addWindow, text="Left", variable=var, value="left")
 	r2 = Radiobutton(addWindow, text="Right", variable=var, value="right")
-	r1.grid(row=2, column=4)
-	r2.grid(row=2, column=5)
+	l3.grid(row=2,column=4)
+	r1.grid(row=2, column=5)
+	r2.grid(row=2, column=6)
+
+	def changeStates(event):
+		if r1['state'] == NORMAL:
+			r1.config(state=DISABLED)
+			r2.config(state=DISABLED)
+			e1.delete(0, END)
+			for b in avyButtons:
+				b.config(state=DISABLED)
+		else:
+			r1.config(state=NORMAL)
+			r2.config(state=NORMAL)
+			for b in avyButtons:
+				b.config(state=NORMAL)
+
+	cbVar = IntVar()
+	cb = Checkbutton(addWindow, text="Add as Time Marker", variable=cbVar, padx=10)
+	cb.grid(row=3, column=4, columnspan=3)
+	cb.bind('<Button-1>', changeStates)
 
 	confirmButton = Button(addWindow, text="Confirm", command=confirm, padx=10, pady=10)
-	confirmButton.grid(row=3, column=4, columnspan=2)
+	confirmButton.grid(row=4, column=4, columnspan=3)
+	r1.select()
 
 
 def deleteEntry():
