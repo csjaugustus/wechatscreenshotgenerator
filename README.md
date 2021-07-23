@@ -2,7 +2,7 @@
 A Tkinter GUI program written to generate WeChat screenshots. One of the main differences between this program and other WeChat generator programs is that this supports the input of Chinese characters. 
 
 ## Main Interface
-<img src="https://user-images.githubusercontent.com/61149391/124594007-e0519800-de91-11eb-804c-93b48d3e6d13.png" width=50% height=50%>
+<img src="https://user-images.githubusercontent.com/61149391/124909696-58989480-e01d-11eb-994e-c09857bba2f1.png" width=50% height=50%>
 On the right you can set the chat title and add new speech bubbles, and on the left the changes are reflected in the preview image area.
 
 ## Adding an entry
