@@ -258,7 +258,7 @@ currentCanvas = Image.open("files\\blankScreenshot.png")
 w, h = currentCanvas.size
 imagePreview = currentCanvas.resize((round(w/3), round(h/3)))
 imagePreview = ImageTk.PhotoImage(imagePreview)
-imagePreviewWidget = Label(root, image=imagePreview)
+imagePreviewWidget = Label(root, image=imagePreview, borderwidth=2, relief="sunken")
 folderIcon = Image.open("files\\foldericon.png")
 folderIcon = folderIcon.resize((25,25))
 folderIcon = ImageTk.PhotoImage(folderIcon)
