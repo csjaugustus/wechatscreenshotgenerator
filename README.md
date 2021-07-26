@@ -17,7 +17,7 @@ On the right you can set the chat title and add new speech bubbles, and on the l
 
 ## Adding an Entry
 <img src="https://user-images.githubusercontent.com/61149391/126956997-25d2fdfa-3120-4ee5-ad26-4295ab4a068a.png" width=50% height=50%>
-Save your square avatars under files\avatars in either .png or .jpg format. You do not need to select an avatar or side if you are adding a time marker.
+Save your square avatars under files\avatars in either .png or .jpg format. They do not need to be manually resized. You do not need to select an avatar or side if you are adding a time marker.
 
 ## Saving Images
 <img src="https://user-images.githubusercontent.com/61149391/126956499-00d8a9b4-8e35-41f2-a2cf-98ca538fec82.png" width=50% height=50%>
