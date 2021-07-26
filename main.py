@@ -163,15 +163,17 @@ def deleteEntry():
 		lb.delete(selectedIndex)
 
 		if not lb.get(0):
-			clearButton.config(state=DISABLED)
-			deleteButton.config(state=DISABLED)
-			saveButton.config(state=DISABLED)
-			saveIndividualButton.config(state=DISABLED)
+			if not canvas.title:
+				clearButton.config(state=DISABLED)
+				deleteButton.config(state=DISABLED)
+				saveButton.config(state=DISABLED)
+				saveIndividualButton.config(state=DISABLED)
 
 		updatePreview()
 
 def saveScreenshot():
 	d = f"output\\SS-{getTimestamp()}.png"
+	currentCanvas = canvas.get()
 	currentCanvas.save(d)
 	popupMessage("Successful", f"Saved under {d}.")
 	
@@ -181,13 +183,25 @@ def setTitle():
 	canvas.setTitle(title)
 	updatePreview()
 
+	if title:
+		clearButton.config(state=NORMAL)
+	else:
+		if not lb.get(0):
+			clearButton.config(state=DISABLED)
+			deleteButton.config(state=DISABLED)
+			saveButton.config(state=DISABLED)
+			saveIndividualButton.config(state=DISABLED)			
+
 def saveIndividual():
 	selectedIndex = lb.curselection()
 	if not selectedIndex:
 		popupMessage("Nothing selected", "Please select an entry to save.")
 	else:
 		selectedIndex = selectedIndex[0]
-		toSave = entries[selectedIndex]
+		if canvas.mode == "light":
+			toSave = canvas.entries[selectedIndex]
+		elif canvas.mode == "dark":
+			toSave = canvas.entriesDark[selectedIndex]
 		d = f"output\\B{selectedIndex}-{getTimestamp()}.png"
 		toSave.save(d)
 		popupMessage("Successful", f"Saved under {d}.")
@@ -198,10 +212,11 @@ def openDir():
 def clear():
 	def clearScreen():
 		confirmation.destroy()
-		entries.clear()
+		canvas.entries.clear()
+		canvas.entriesDark.clear()
 		lb.delete(0,'end')
-		blank = Image.new('RGB', (width,maxChatHeight), color=bg)
-		currentCanvas.paste(blank, (0,113))
+		canvas.setTitle("")
+		canvas.update()
 		updatePreview()
 
 	confirmation = Toplevel()
@@ -229,7 +244,6 @@ def changeMode(event):
 
 width = 864
 maxChatHeight = 1684
-entries = []
 
 if "output" not in os.listdir():
 	os.mkdir("output")

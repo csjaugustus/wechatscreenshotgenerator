@@ -14,7 +14,6 @@ class Screenshot():
 		self.entriesDark = []
 
 	def setMode(self):
-		self.rightBubbleBase = '#97ec6a'
 		self.rightText = "#1c1c1c"
 
 		if self.mode == "light":
@@ -27,6 +26,7 @@ class Screenshot():
 			self.inputBox = inputbox
 			self.leftArrow = whitearrow
 			self.rightArrow = greenarrow
+			self.rightBubbleBase = '#97ec6a'
 
 		elif self.mode == "dark":
 			self.leftBubbleBase = '#2c2c2c'
@@ -38,6 +38,7 @@ class Screenshot():
 			self.inputBox = inputboxDark
 			self.leftArrow = darkarrow
 			self.rightArrow = greenarrowDark
+			self.rightBubbleBase = '#42b16c'
 
 
 	def setTitle(self, title):
@@ -46,7 +47,7 @@ class Screenshot():
 			draw = ImageDraw.Draw(self.canvas)
 			tw, th = getTextSize(title, title=True)
 			drawText(draw, (w-tw)/2, (113-th)/2, title, self.leftText, title=True)
-			self.title = title
+		self.title = title
 
 	def addTimeMarker(self, t):
 		def createTimeMarker():
@@ -105,10 +106,11 @@ class Screenshot():
 				for i in range(1, len(temp)):
 					img = self.get_concat_v(img, temp[i])
 			if img.size[1] > maxChatHeight:
-				img = img.crop((0, img.size[1]-maxChatHeight, width, img.size[1]))
+				img = img.crop((0, img.size[1]-maxChatHeight, w, img.size[1]))
 			self.canvas.paste(img, (0,113))
 		else:
 			blank = Image.new('RGB', (w, maxChatHeight), color=self.bg)
+			self.canvas.paste(blank, (0,113))
 
 	def createBubble(self, avatar, text, side):
 		def breakWord(word):
@@ -223,11 +225,9 @@ class Screenshot():
 
 		if self.mode == "light":
 			self.entries.append(getUserCanvas())
-			getUserCanvas().save("output\\1.png")
 			self.mode = "dark"
 			self.setMode()
 			self.entriesDark.append(getUserCanvas())
-			getUserCanvas().save("output\\2.png")
 			self.mode = "light"
 			self.setMode()
 
