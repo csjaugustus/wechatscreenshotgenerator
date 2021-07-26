@@ -194,9 +194,11 @@ class Screenshot():
 			if side == "left":
 				userCanvas.paste(avatar, (sideMargin, topMargin), mask=sq)
 				bubbleColour = self.leftBubbleBase
+				textColour = self.leftText
 			elif side == "right":
 				userCanvas.paste(avatar, (w-sideMargin-86, topMargin), mask=sq)
 				bubbleColour = self.rightBubbleBase
+				textColour = self.rightText
 
 			bubble = Image.new('RGB', (bubbleWidth, bubbleHeight), color=bubbleColour)
 			bubbleCanvas = Image.new('RGB', (bubbleWidth, bubbleHeight), color=self.bg)
@@ -207,7 +209,7 @@ class Screenshot():
 			yincrement = 0
 
 			for l in lines:
-				drawText(bubbleDraw, bubbleSideMargin, bubbleTopMargin+yincrement, l, self.leftText)
+				drawText(bubbleDraw, bubbleSideMargin, bubbleTopMargin+yincrement, l, textColour)
 				yincrement += bubbleLineMargin + getTextSize(l)[1]
 
 			if side == "left":
