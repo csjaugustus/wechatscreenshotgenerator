@@ -1,6 +1,6 @@
-from imageProcessing import createBubble, loadAvatar, get_concat_v, drawTitle, createTimeMarker
-import os
+from imageProcessing import Screenshot
 import re
+import os
 from tkinter import *
 from PIL import Image, ImageTk
 from datetime import datetime
@@ -11,6 +11,7 @@ def getTimestamp():
 	return dt_string
 
 def updatePreview():
+	currentCanvas = canvas.get()
 	imagePreview = currentCanvas.resize((round(w/3), round(h/3)))
 	imagePreview = ImageTk.PhotoImage(imagePreview)
 	imagePreviewWidget.configure(image=imagePreview)
@@ -49,9 +50,8 @@ def addEntry():
 				popupMessage("Error", "\n".join(e for e in errors))
 				return
 
-			timeMarker = createTimeMarker(text)
+			canvas.addTimeMarker(text)
 			addWindow.destroy()
-			entries.append(timeMarker)
 
 		else:
 			side = var.get()
@@ -70,19 +70,8 @@ def addEntry():
 				popupMessage("Error", "\n".join(e for e in errors))
 				return
 
-			avatar = loadAvatar(f"files\\avatars\\{avyName}")
-			bubble = createBubble(avatar, text, side)
+			canvas.add(avyName, text, side)
 			addWindow.destroy()
-			entries.append(bubble)
-
-		#update current canvas
-		img = entries[0]
-		if len(entries) > 1:
-			for i in range(1, len(entries)):
-				img = get_concat_v(img, entries[i])
-		if img.size[1] > maxChatHeight:
-			img = img.crop((0, img.size[1]-maxChatHeight, width, img.size[1]))
-		currentCanvas.paste(img, (0,113))
 
 		lb.insert(END, text)
 		clearButton.config(state=NORMAL)
@@ -170,7 +159,7 @@ def deleteEntry():
 					 "Please select an entry to delete.")
 	else:
 		selectedIndex = selectedIndex[0]
-		del entries[selectedIndex]
+		canvas.delete(selectedIndex)
 		lb.delete(selectedIndex)
 
 		if not lb.get(0):
@@ -178,18 +167,6 @@ def deleteEntry():
 			deleteButton.config(state=DISABLED)
 			saveButton.config(state=DISABLED)
 			saveIndividualButton.config(state=DISABLED)
-
-		#update current canvas
-		blank = Image.new('RGB', (width,maxChatHeight), color=(237,237,237))
-		currentCanvas.paste(blank, (0,113))
-
-		if entries:
-			img = entries[0]
-			if len(entries) > 1:
-				for i in range(1, len(entries)):
-					img = get_concat_v(img, entries[i])
-			if img.size[1] <= maxChatHeight:
-				currentCanvas.paste(img,(0,113))
 
 		updatePreview()
 
@@ -199,9 +176,9 @@ def saveScreenshot():
 	popupMessage("Successful", f"Saved under {d}.")
 	
 
-def setTitle(currentCanvas):
+def setTitle():
 	title = titleEntry.get()
-	currentCanvas = drawTitle(currentCanvas, title)
+	canvas.setTitle(title)
 	updatePreview()
 
 def saveIndividual():
@@ -223,7 +200,7 @@ def clear():
 		confirmation.destroy()
 		entries.clear()
 		lb.delete(0,'end')
-		blank = Image.new('RGB', (width,maxChatHeight), color=(237,237,237))
+		blank = Image.new('RGB', (width,maxChatHeight), color=bg)
 		currentCanvas.paste(blank, (0,113))
 		updatePreview()
 
@@ -241,12 +218,21 @@ def clear():
 	saveButton.config(state=DISABLED)
 	saveIndividualButton.config(state=DISABLED)
 
+def changeMode(event):
+	if canvas.mode == "light":
+		canvas.mode = "dark"
+	else:
+		canvas.mode = "light"
+	canvas.setMode()
+	canvas.update(changeMode=True)
+	updatePreview()
+
 width = 864
 maxChatHeight = 1684
 entries = []
 
 if "output" not in os.listdir():
-	os.mkdir(output)
+	os.mkdir("output")
 
 root = Tk()
 root.title("WeChat Screenshot Generator")
@@ -254,7 +240,8 @@ icon = Image.open("files\\wechat-logo.png")
 icon = ImageTk.PhotoImage(icon)
 root.iconphoto(True, icon)
 
-currentCanvas = Image.open("files\\blankScreenshot.png")
+canvas = Screenshot('light')
+currentCanvas = canvas.get()
 w, h = currentCanvas.size
 imagePreview = currentCanvas.resize((round(w/3), round(h/3)))
 imagePreview = ImageTk.PhotoImage(imagePreview)
@@ -263,10 +250,9 @@ folderIcon = Image.open("files\\foldericon.png")
 folderIcon = folderIcon.resize((25,25))
 folderIcon = ImageTk.PhotoImage(folderIcon)
 
-previewText = Label(root, text="PREVIEW")
 saveButton = Button(root, text="Save Screenshot", padx=10, pady=10, command=saveScreenshot)
 setTitleLabel = Label(root, text="Chat Title:", padx=10, pady=10)
-setTitleButton = Button(root, text="Set", padx=10, command=lambda: setTitle(currentCanvas))
+setTitleButton = Button(root, text="Set", padx=10, command=setTitle)
 titleEntry = Entry(root, width=20)
 lb = Listbox(root, height=35, width=50)
 addButton = Button(root, text="Add", padx=10, pady=10, command=addEntry)
@@ -275,6 +261,9 @@ saveIndividualButton = Button(root, text="Save Selected Bubble", padx=10, pady=1
 openDirectoryButton = Button(root, image=folderIcon, command=openDir)
 openDirectoryButton.image = folderIcon
 clearButton = Button(root, text="Clear", padx=10, pady=10, command=clear)
+mode = IntVar()
+darkMode = Checkbutton(root, text="Dark Mode", padx=10, variable=mode)
+darkMode.bind('<Button-1>', changeMode)
 
 clearButton.config(state=DISABLED)
 deleteButton.config(state=DISABLED)
@@ -282,7 +271,7 @@ saveButton.config(state=DISABLED)
 saveIndividualButton.config(state=DISABLED)
 
 imagePreviewWidget.grid(row=1, column=0, columnspan=2)
-previewText.grid(row=0,column=0, columnspan=2)
+darkMode.grid(row=0,column=0, columnspan=2)
 setTitleLabel.grid(row=0, column=2)
 titleEntry.grid(row=0,column=3)
 setTitleButton.grid(row=0, column=4)
