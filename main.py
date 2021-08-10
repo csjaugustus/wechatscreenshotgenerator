@@ -1,9 +1,11 @@
 from imageProcessing import Screenshot
 import re
 import os
-from tkinter import *
+import tkinter as tk
+from tkinter import ttk
 from PIL import Image, ImageTk
 from datetime import datetime
+import pyperclip
 
 def getTimestamp():
 	now = datetime.now()
@@ -19,7 +21,8 @@ def updatePreview():
 	imagePreviewWidget.grid(row=1, column=0)
 
 def popupMessage(title, message, windowToClose=None):
-	popupWindow = Toplevel()
+	popupWindow = tk.Toplevel()
+	popupWindow.resizable(False, False)
 	popupWindow.title(title)
 	if not windowToClose:
 		close = popupWindow.destroy
@@ -29,20 +32,20 @@ def popupMessage(title, message, windowToClose=None):
 		def close():
 			popupWindow.destroy()
 			windowToClose.destroy()
-	msg = Label(popupWindow, text=message, padx=10, pady=10)
-	ok = Button(popupWindow, text="Ok", padx=10,
-				pady=10, command=close)
-	msg.pack()
-	ok.pack()
+	msg = ttk.Label(popupWindow, text=message)
+	ok = ttk.Button(popupWindow, text="Ok", command=close)
+	msg.pack(padx=10, pady=10)
+	ok.pack(padx=10, pady=10)
 	
 
 def addEntry():
+	whitespace = re.compile("^\\s$")
 	def confirm():
 		if cbVar.get():
 			timeRegex = re.compile('^\\d{2}:\\d{2}$')
-			text = e2.get("1.0", END)
+			text = e2.get("1.0", tk.END)
 			errors = []
-			if not text:
+			if whitespace.findall(text):
 				errors.append("Please enter some text.")
 			elif not timeRegex.findall(text):
 				errors.append("Please enter a valid time in such format xx:xx.")
@@ -55,16 +58,15 @@ def addEntry():
 
 		else:
 			side = var.get()
-			text = e2.get("1.0", END)
+			text = e2.get("1.0", tk.END)
 			avyName = e1.get()
 
 			#check for errors
+			pyperclip.copy(text)
 			errors = []
-			if side not in ("left", "right"):
-				errors.append("Please select left or right.")
 			if not avyName:
 				errors.append("Please select an avatar.")
-			if not text:
+			if whitespace.findall(text):
 				errors.append("Please enter some text.")
 			if errors:
 				popupMessage("Error", "\n".join(e for e in errors))
@@ -73,25 +75,26 @@ def addEntry():
 			canvas.add(avyName, text, side)
 			addWindow.destroy()
 
-		lb.insert(END, text)
-		clearButton.config(state=NORMAL)
-		deleteButton.config(state=NORMAL)
-		saveButton.config(state=NORMAL)
-		saveIndividualButton.config(state=NORMAL)
+		lb.insert(tk.END, text)
+		clearButton.config(state=tk.NORMAL)
+		deleteButton.config(state=tk.NORMAL)
+		saveButton.config(state=tk.NORMAL)
+		saveIndividualButton.config(state=tk.NORMAL)
 
 		updatePreview()
 
 	def selectAvatar(x):
-		e1.config(state=NORMAL)
-		e1.delete(0, END)
+		e1.config(state=tk.NORMAL)
+		e1.delete(0, tk.END)
 		e1.insert(0, x)
-		e1.config(state=DISABLED)
+		e1.config(state=tk.DISABLED)
 
 	if not os.listdir("files\\avatars"):
 		popupMessage("Error", "No avatar image found. Please add at least one avatar image in files\\avatars.")
 		return
 
-	addWindow = Toplevel()
+	addWindow = tk.Toplevel()
+	addWindow.resizable(False, False)
 	addWindow.title("Add Entry")
 	r, c = 0, 0
 
@@ -100,7 +103,7 @@ def addEntry():
 		avyImage = Image.open(f"files\\avatars\\{avyName}")
 		avyImage = avyImage.resize((50,50))
 		avyImage = ImageTk.PhotoImage(avyImage)
-		b = Button(addWindow, image=avyImage, command=lambda x=avyName:selectAvatar(x))
+		b = ttk.Button(addWindow, image=avyImage, command=lambda x=avyName:selectAvatar(x))
 		b.image = avyImage
 		avyButtons.append(b)
 		b.grid(row=r, column=c)
@@ -109,47 +112,47 @@ def addEntry():
 			c = 0
 			r += 1
 
-	l1 = Label(addWindow, text="Avatar Selected:", padx=10)
-	e1 = Entry(addWindow, width=30)
-	l1.grid(row=0, column=4)
+	l1 = ttk.Label(addWindow, text="Avatar Selected:")
+	e1 = ttk.Entry(addWindow, width=30)
+	l1.grid(row=0, column=4, padx=10)
 	e1.grid(row=0, column=5, columnspan=2)
-	e1.config(state=DISABLED)
+	e1.config(state=tk.DISABLED)
 
-	l2 = Label(addWindow, text="Text:", padx=10)
-	e2 = Text(addWindow, height=10, width=30)
-	l2.grid(row=1, column=4)
+	l2 = ttk.Label(addWindow, text="Text:")
+	e2 = tk.Text(addWindow, height=10, width=30)
+	l2.grid(row=1, column=4, padx=10)
 	e2.grid(row=1, column=5,columnspan=2)
 
-	l3 = Label(addWindow, text="Side:", padx=10)
-	var = StringVar()
+	l3 = ttk.Label(addWindow, text="Side:")
+	var = tk.StringVar()
 	var.set(' ')
-	r1 = Radiobutton(addWindow, text="Left", variable=var, value="left")
-	r2 = Radiobutton(addWindow, text="Right", variable=var, value="right")
-	l3.grid(row=2,column=4)
-	r1.grid(row=2, column=5)
-	r2.grid(row=2, column=6)
+	r1 = ttk.Radiobutton(addWindow, text="Left", variable=var, value="left")
+	r2 = ttk.Radiobutton(addWindow, text="Right", variable=var, value="right")
+	l3.grid(row=2,column=4, padx=10, pady=10)
+	r1.grid(row=2, column=5, pady=10)
+	r2.grid(row=2, column=6, pady=10)
 
 	def changeStates(event):
-		if r1['state'] == NORMAL:
-			r1.config(state=DISABLED)
-			r2.config(state=DISABLED)
-			e1.delete(0, END)
+		if r1['state'] == tk.NORMAL:
+			r1.config(state=tk.DISABLED)
+			r2.config(state=tk.DISABLED)
+			e1.delete(0, tk.END)
 			for b in avyButtons:
-				b.config(state=DISABLED)
+				b.config(state=tk.DISABLED)
 		else:
-			r1.config(state=NORMAL)
-			r2.config(state=NORMAL)
+			r1.config(state=tk.NORMAL)
+			r2.config(state=tk.NORMAL)
 			for b in avyButtons:
-				b.config(state=NORMAL)
+				b.config(state=tk.NORMAL)
 
-	cbVar = IntVar()
-	cb = Checkbutton(addWindow, text="Add as Time Marker", variable=cbVar, padx=10)
-	cb.grid(row=3, column=4, columnspan=3)
+	cbVar = tk.IntVar()
+	cb = ttk.Checkbutton(addWindow, text="Add as Time Marker", variable=cbVar, style="Switch.TCheckbutton")
+	cb.grid(row=3, column=5, columnspan=2, padx=10, pady=10)
 	cb.bind('<Button-1>', changeStates)
 
-	confirmButton = Button(addWindow, text="Confirm", command=confirm, padx=10, pady=10)
-	confirmButton.grid(row=4, column=4, columnspan=3)
-	r1.select()
+	confirmButton = ttk.Button(addWindow, text="Confirm", command=confirm)
+	confirmButton.grid(row=4, column=5, columnspan=2, padx=10, pady=10)
+	r1.invoke()
 
 
 def deleteEntry():
@@ -164,10 +167,10 @@ def deleteEntry():
 
 		if not lb.get(0):
 			if not canvas.title:
-				clearButton.config(state=DISABLED)
-				deleteButton.config(state=DISABLED)
-				saveButton.config(state=DISABLED)
-				saveIndividualButton.config(state=DISABLED)
+				clearButton.config(state=tk.DISABLED)
+				deleteButton.config(state=tk.DISABLED)
+				saveButton.config(state=tk.DISABLED)
+				saveIndividualButton.config(state=tk.DISABLED)
 
 		updatePreview()
 
@@ -184,13 +187,13 @@ def setTitle():
 	updatePreview()
 
 	if title:
-		clearButton.config(state=NORMAL)
+		clearButton.config(state=tk.NORMAL)
 	else:
 		if not lb.get(0):
-			clearButton.config(state=DISABLED)
-			deleteButton.config(state=DISABLED)
-			saveButton.config(state=DISABLED)
-			saveIndividualButton.config(state=DISABLED)			
+			clearButton.config(state=tk.DISABLED)
+			deleteButton.config(state=tk.DISABLED)
+			saveButton.config(state=tk.DISABLED)
+			saveIndividualButton.config(state=tk.DISABLED)			
 
 def saveIndividual():
 	selectedIndex = lb.curselection()
@@ -219,19 +222,20 @@ def clear():
 		canvas.update()
 		updatePreview()
 
-	confirmation = Toplevel()
+	confirmation = tk.Toplevel()
+	confirmation.resizable(False, False)
 	confirmation.title("Confirmation")
-	l = Label(confirmation, text="Are you sure you want to clear the screenshot?\nAll unsaved bubbles will be erased.")
-	b1 = Button(confirmation, text="Yes", command=clearScreen, padx=10)
-	b2 = Button(confirmation, text="No", command=confirmation.destroy, padx=10)
+	l = ttk.Label(confirmation, text="Are you sure you want to clear the screenshot?\nAll unsaved bubbles will be erased.")
+	b1 = ttk.Button(confirmation, text="Yes", command=clearScreen)
+	b2 = ttk.Button(confirmation, text="No", command=confirmation.destroy)
 	l.grid(row=0,column=0,columnspan=3)
-	b1.grid(row=1,column=0)
-	b2.grid(row=1,column=2)
+	b1.grid(row=1,column=0, padx=10)
+	b2.grid(row=1,column=2, padx=10)
 
-	clearButton.config(state=DISABLED)
-	deleteButton.config(state=DISABLED)
-	saveButton.config(state=DISABLED)
-	saveIndividualButton.config(state=DISABLED)
+	clearButton.config(state=tk.DISABLED)
+	deleteButton.config(state=tk.DISABLED)
+	saveButton.config(state=tk.DISABLED)
+	saveIndividualButton.config(state=tk.DISABLED)
 
 def changeMode(event):
 	if canvas.mode == "light":
@@ -248,54 +252,57 @@ maxChatHeight = 1684
 if "output" not in os.listdir():
 	os.mkdir("output")
 
-root = Tk()
+root = tk.Tk()
 root.title("WeChat Screenshot Generator")
 icon = Image.open("files\\wechat-logo.png")
 icon = ImageTk.PhotoImage(icon)
 root.iconphoto(True, icon)
+root.tk.call("source", "sun-valley.tcl")
+root.tk.call("set_theme", "light")
+root.resizable(False, False)
 
 canvas = Screenshot('light')
 currentCanvas = canvas.get()
 w, h = currentCanvas.size
 imagePreview = currentCanvas.resize((round(w/3), round(h/3)))
 imagePreview = ImageTk.PhotoImage(imagePreview)
-imagePreviewWidget = Label(root, image=imagePreview, borderwidth=2, relief="sunken")
+imagePreviewWidget = ttk.Label(root, image=imagePreview, borderwidth=2, relief="sunken")
 folderIcon = Image.open("files\\foldericon.png")
 folderIcon = folderIcon.resize((25,25))
 folderIcon = ImageTk.PhotoImage(folderIcon)
 
-saveButton = Button(root, text="Save Screenshot", padx=10, pady=10, command=saveScreenshot)
-setTitleLabel = Label(root, text="Chat Title:", padx=10, pady=10)
-setTitleButton = Button(root, text="Set", padx=10, command=setTitle)
-titleEntry = Entry(root, width=20)
-lb = Listbox(root, height=35, width=50)
-addButton = Button(root, text="Add", padx=10, pady=10, command=addEntry)
-deleteButton = Button(root, text="Delete", padx=10, pady=10, command=deleteEntry)
-saveIndividualButton = Button(root, text="Save Selected Bubble", padx=10, pady=10, command=saveIndividual)
-openDirectoryButton = Button(root, image=folderIcon, command=openDir)
+saveButton = ttk.Button(root, text="Save Screenshot", command=saveScreenshot)
+setTitleLabel = ttk.Label(root, text="Chat Title:")
+setTitleButton = ttk.Button(root, text="Set", command=setTitle)
+titleEntry = ttk.Entry(root, width=20)
+lb = tk.Listbox(root, height=35, width=50)
+addButton = ttk.Button(root, text="Add", command=addEntry)
+deleteButton = ttk.Button(root, text="Delete", command=deleteEntry)
+saveIndividualButton = ttk.Button(root, text="Save Selected Bubble", command=saveIndividual)
+openDirectoryButton = ttk.Button(root, image=folderIcon, command=openDir)
 openDirectoryButton.image = folderIcon
-clearButton = Button(root, text="Clear", padx=10, pady=10, command=clear)
-mode = IntVar()
-darkMode = Checkbutton(root, text="Dark Mode", padx=10, variable=mode)
+clearButton = ttk.Button(root, text="Clear", command=clear)
+mode = tk.IntVar()
+darkMode = ttk.Checkbutton(root, text="Dark Mode", variable=mode, style="Switch.TCheckbutton")
 darkMode.bind('<Button-1>', changeMode)
 
-clearButton.config(state=DISABLED)
-deleteButton.config(state=DISABLED)
-saveButton.config(state=DISABLED)
-saveIndividualButton.config(state=DISABLED)
+clearButton.config(state=tk.DISABLED)
+deleteButton.config(state=tk.DISABLED)
+saveButton.config(state=tk.DISABLED)
+saveIndividualButton.config(state=tk.DISABLED)
 
 imagePreviewWidget.grid(row=1, column=0, columnspan=2)
-darkMode.grid(row=0,column=0, columnspan=2)
-setTitleLabel.grid(row=0, column=2)
+darkMode.grid(row=0,column=0, columnspan=2, padx=10)
+setTitleLabel.grid(row=0, column=2, padx=10, pady=10)
 titleEntry.grid(row=0,column=3)
-setTitleButton.grid(row=0, column=4)
+setTitleButton.grid(row=0, column=4, padx=10)
 lb.grid(row=1,column=2, columnspan=4)
-saveButton.grid(row=2,column=1)
-addButton.grid(row=2, column=2)
-deleteButton.grid(row=2,column=3)
-saveIndividualButton.grid(row=2,column=4,columnspan=2)
+saveButton.grid(row=2,column=1, padx=10, pady=10)
+addButton.grid(row=2, column=2, padx=10, pady=10)
+deleteButton.grid(row=2,column=3, padx=10, pady=10)
+saveIndividualButton.grid(row=2,column=4,columnspan=2, padx=10, pady=10)
 openDirectoryButton.grid(row=0,column=5)
-clearButton.grid(row=2,column=0)
+clearButton.grid(row=2,column=0, padx=10, pady=10)
 
 
 root.mainloop()
