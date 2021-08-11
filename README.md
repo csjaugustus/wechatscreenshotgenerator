@@ -9,7 +9,15 @@ A Tkinter GUI program written to generate WeChat screenshots. Offers support for
 * [Dark Mode Support](#dark-mode-support)
 
 ## Installation
-Clone this repository, install packages in requirements.txt and run main.py.
+```
+$ git clone <repository link>
+```
+```
+$ pip install -r requirements.txt
+```
+```
+$ main.py
+```
 
 ## Main Interface
 <img src="https://user-images.githubusercontent.com/61149391/128868735-996bd8fb-5799-4edf-8180-9c9a4ce24666.png" width=50% height=50%>
