@@ -10,7 +10,7 @@ A Tkinter GUI program written to generate WeChat screenshots. Offers support for
 
 ## Installation
 ```
-$ git clone <repository link>
+$ git clone https://github.com/csjaugustus/wechatscreenshotgenerator.git
 ```
 ```
 $ pip install -r requirements.txt
